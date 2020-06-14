@@ -25,8 +25,9 @@ grid_list = []
 	[[0][0][0]...]
 	...
 '''
-SIDE_LENGTH = 18 #the length of the grid
-MARGIN = 2 #the width of the margin
+SIDE_LENGTH = 36 #the length of the grid
+MARGIN = 4 #the width of the margin
+#when added must be divisiBLE worldx and worldy
 	
 #set initial direction of snake to be up/north
 head_direction = "K_UP"
@@ -88,7 +89,7 @@ class Snake(pygame.sprite.Sprite):
 		position_element = tuple(self.position) #make it a tuple to not change it when appended as self.position changes continuously which causes the position_element stored to change
 		self.posList.append(position_element)
 	
-	def collides_with(self, sprite):
+	def collides_with(self, *sprite):
 		return self.rect.collidepoint(sprite)
 	
 	def coords(self, indexNum):
@@ -104,7 +105,7 @@ class SnakeParts(Snake):
 	def __init__(self, num):
 		super().__init__(num)
 		
-	def follow(self, followPos):
+	def move_(self, followPos):
 		self.followPosList = followPos
 		pos = self.followPosList[0]
 		self.position = pos #update its own position --> a tuple
@@ -116,6 +117,7 @@ class SnakeParts(Snake):
 		#redraw the part at new position
 		self.sprite = pygame.draw.rect(background, [0,255,0], [ pos[0],pos[1], SIDE_LENGTH+MARGIN,SIDE_LENGTH+MARGIN ])
 		self.rect = self.sprite
+		pygame.display.update()
 		
 		self.posList.append(self.position)	#add the new position to its list
 
@@ -191,9 +193,7 @@ while running:
 				elif event.key == pygame.K_RIGHT and head_direction != "K_LEFT" and head_direction != "K_RIGHT":
 					#prev_direction = head_direction
 					head_direction = "K_RIGHT"
-				#else:
-					#prev_direction = head_direction
-				#direction_list.append(prev_direction)
+				
 			#when user quits, end the loop
 			if event.type == pygame.QUIT:
 				running = False
@@ -224,7 +224,7 @@ while running:
 		#move the snake parts one by one, excluding the head (index 0)
 		for part in range(1, len(snake_parts_list)):
 			last_part = snake_parts_list[part-1]
-			snake_parts_list[part].follow(getattr(last_part, "posList"))	
+			snake_parts_list[part].move_(getattr(last_part, "posList"))	
 		
 		#when snake eats the food, delete the food + snake grows
 		if head.collides_with(target.coords()):
